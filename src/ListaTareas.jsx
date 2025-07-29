@@ -13,6 +13,8 @@ const ListaTareas = () => {
     return JSON.parse(localStorage.getItem("tasksList")) || [];
   });
 
+  const [editIndex, setEditIndex] = useState(null);
+
   useEffect(() => {
     localStorage.setItem("tasksList", JSON.stringify(tasksList));
   }, [tasksList]);
@@ -45,12 +47,11 @@ const ListaTareas = () => {
 
                     className="rounded-full bg-green-200 p-2 border-none"
                     onClick={() => {
-                      setisNewTaskActive(true);
-                      setNewTask({
-                        name: task.name,
-                        description: task.description,
-                      });
-                    }}
+                      setisNewTaskActive(true); // Mostramos el formulario
+                      setEditIndex(index); // Guardamos el índice de la tarea a editar
+                      setNewTask(task)
+                    }}   //mostramos el formulario
+
                   >
                     <MdEdit />
                   </button>
@@ -88,32 +89,47 @@ const ListaTareas = () => {
 
               <button
                 onClick={() => {
-                  setTasksList((tl) => [...tl, newTask]);
-                  setisNewTaskActive(false);
-                  setNewTask((ts) => {
-                    const copy = { ...ts };
-                    copy.description = "";
-                    copy.name = "";
-                    return copy;
-                  });
-                }}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                  if (editIndex !== null) {
+                    //modo edicion
+                    const updateList = [...tasksList]; // Copiamos la lista actual
+                    updateList[editIndex] = newTask; // Actualizamos la tarea en el índice
+                    setTasksList(updateList); // Actualizamos el estado de la lista
+                    setEditIndex(null); // Reseteamos el índice de edición
+                  }
+                  else {
+                    // modo agregar
+                    setTasksList((tl) => 
+                      [...tl, newTask]);
+                    }
+                  //limpia el formulario
+                  setNewTask({
+                      name: "",
+                      description: "",
+                      status: "",
+                    })
+                  setisNewTaskActive(false); // Ocultamos el formulario
+
+                  }}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              
               >
-                Agregar tarea
-              </button>
+
+              {editIndex !== null ? "Editar Tarea" : "Agregar Tarea"}
+
+            </button>
             </div>
           )}
-        </div>
-        <div className="fixed bottom-4 right-4">
-          <button
-            onClick={() => setisNewTaskActive(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-lg"
-          >
-            Nueva Tarea
-          </button>
-        </div>
+      </div>
+      <div className="fixed bottom-4 right-4">
+        <button
+          onClick={() => setisNewTaskActive(true)}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-lg"
+        >
+          Nueva Tarea
+        </button>
       </div>
     </div>
+    </div >
   );
 };
 
